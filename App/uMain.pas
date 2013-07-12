@@ -1,4 +1,5 @@
 unit uMain;
+
 {
 
   GW2Link for windows by zenyr (zenyr@zenyr.com)
@@ -19,14 +20,16 @@ type
   TFrmMain = class(TForm)
     Tmr: TTimer;
     HTTP: TIdHTTPServer;
+    MemOutput: TMemo;
     procedure TmrTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure HTTPCommandGet(AContext: TIdContext;
       ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
-    GWLinker: TGW2Linker;
+    GW2Linker: TGW2Linker;
   public
     { Public declarations }
   end;
@@ -39,9 +42,14 @@ implementation
 uses Math;
 {$R *.dfm}
 
+procedure TFrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose := Tag = 0;
+end;
+
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
-  GWLinker := TGW2Linker.Create;
+  GW2Linker := TGW2Linker.Create;
   HTTP.DefaultPort := 8428;
   HTTP.Active := true;
   TmrTimer(nil);
@@ -49,19 +57,28 @@ end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(GWLinker);
+  FreeAndNil(GW2Linker);
 end;
 
 procedure TFrmMain.HTTPCommandGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+var
+  JSON: string;
 begin
+  Tag := 1;
+  try
   if (LowerCase(ARequestInfo.URI) = '/gw2.json') then
   begin
     AResponseInfo.CustomHeaders.AddValue('Access-Control-Allow-Origin', '*');
-    AResponseInfo.ContentText := GWLinker.JSON;
+    JSON := GW2Linker.JSON;
+    AResponseInfo.ContentText := JSON;
+    MemOutput.text := JSON;
   end
   else
     AResponseInfo.ResponseNo := 404;
+  finally
+    tag := 0;
+  end;
 end;
 
 procedure TFrmMain.TmrTimer(Sender: TObject);
@@ -69,14 +86,14 @@ var
   S: string;
 begin
   try
-    if (Assigned(GWLinker)) then
+    if (Assigned(GW2Linker)) then
     begin
-      S := GWLinker.version + ' - STATUS:' + GWLinker.status;
+      S := FloatToStr(roundto(GW2Linker.version,-2)) + ' - STATUS:' + GW2Linker.status;
     end
     else
       S := 'Not assigned.';
   finally
-    caption := 'GW2Linker ' + S;
+    caption := 'GW2Linker delphi ' + S;
   end;
 end;
 

@@ -21,13 +21,14 @@ type
     MapFileName = 'MumbleLink';
   private
     hMapFile: THandle;
-    _version: string;
+    _version: Extended;
     _lastTick: Cardinal;
+    function round(s: single): Extended;
   public
     pdata: PLinkedMem;
     constructor Create;
     destructor Destroy; override;
-    property version: string read _version;
+    property version: extended read _version;
     function camRot: single;
     function avatarRot: single;
     function server: integer;
@@ -60,12 +61,12 @@ end;
 
 constructor TGW2Linker.Create;
 begin
-  _version := '1.0 delphi forked';
+  _version := 1.1;
   hMapFile := OpenFileMapping(FILE_MAP_ALL_ACCESS, False, MapFileName);
   if hMapFile = 0 then
     hMapFile := CreateFileMapping($FFFFFFFF, nil, PAGE_READWRITE, 0,
       SizeOf(TLinkedMem), MapFileName);
-  pdata := MapViewOfFile(hMapFile, FILE_MAP_WRITE or FILE_MAP_READ, 0, 0, 0);
+  pdata := MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 0);
   if pdata = nil then
     CloseHandle(hMapFile);
 end;
@@ -81,22 +82,23 @@ function TGW2Linker.JSON: string;
 var
   j: TJSONObject;
   a: TJSONArray;
+
 begin
   try
     j := TJSONObject.Create;
-    j.AddPair('version', version);
+    j.AddPair('version', TJSONNumber.Create(round(version)));
     j.AddPair('status', status);
     j.AddPair('game', pdata^.name);
-    j.AddPair('server', Inttostr(server));
-    j.AddPair('map', Inttostr(map));
+    j.AddPair('server', TJSONNumber.Create(server));
+    j.AddPair('map', TJSONNumber.Create(map));
     j.AddPair('name', pdata^.identity);
     a := TJSONArray.Create;
-    a.Add(FormatFloat('0.#', pdata^.fAvatarPosition[0]));
-    a.Add(FormatFloat('0.#', pdata^.fAvatarPosition[1]));
-    a.Add(FormatFloat('0.#', pdata^.fAvatarPosition[2]));
+    a.Add(round(pdata^.fAvatarPosition[0]));
+    a.Add(round(pdata^.fAvatarPosition[1]));
+    a.Add(round(pdata^.fAvatarPosition[2]));
     j.AddPair('pos', a);
-    j.AddPair('prot', FormatFloat('0.#', avatarRot));
-    j.AddPair('crot', FormatFloat('0.#', camRot));
+    j.AddPair('prot', TJSONNumber.Create(round(avatarRot)));
+    j.AddPair('crot', TJSONNumber.Create(round(camRot)));
   finally
     result := j.ToString;
     j.Free;
@@ -106,6 +108,11 @@ end;
 function TGW2Linker.map: integer;
 begin
   result := pdata^.context[29] * 256 + pdata^.context[28];
+end;
+
+function TGW2Linker.round(s: single): Extended;
+begin
+  result := RoundTo(s, -2);
 end;
 
 function TGW2Linker.server: integer;
