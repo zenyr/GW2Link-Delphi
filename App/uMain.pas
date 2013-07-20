@@ -57,6 +57,8 @@ end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
+  Tmr.Enabled := false;
+  HTTP.StopListening;
   FreeAndNil(GW2Linker);
 end;
 
@@ -67,17 +69,16 @@ var
 begin
   Tag := 1;
   try
-  if (LowerCase(ARequestInfo.URI) = '/gw2.json') then
-  begin
-    AResponseInfo.CustomHeaders.AddValue('Access-Control-Allow-Origin', '*');
-    JSON := GW2Linker.JSON;
-    AResponseInfo.ContentText := JSON;
-    MemOutput.text := JSON;
-  end
-  else
-    AResponseInfo.ResponseNo := 404;
+    if (LowerCase(ARequestInfo.URI) = '/gw2.json') then
+    begin
+      AResponseInfo.CustomHeaders.AddValue('Access-Control-Allow-Origin', '*');
+      JSON := GW2Linker.JSON;
+      AResponseInfo.ContentText := JSON;
+    end
+    else
+      AResponseInfo.ResponseNo := 404;
   finally
-    tag := 0;
+    Tag := 0;
   end;
 end;
 
@@ -88,7 +89,9 @@ begin
   try
     if (Assigned(GW2Linker)) then
     begin
-      S := FloatToStr(roundto(GW2Linker.version,-2)) + ' - STATUS:' + GW2Linker.status;
+      S := FloatToStr(roundto(GW2Linker.version, -2)) + ' - STATUS:' +
+        GW2Linker.status;
+      MemOutput.text := GW2Linker.JSON;
     end
     else
       S := 'Not assigned.';

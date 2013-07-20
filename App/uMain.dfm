@@ -27,8 +27,8 @@ object FrmMain: TFrmMain
   object Tmr: TTimer
     Interval = 100
     OnTimer = TmrTimer
-    Left = 128
-    Top = 104
+    Left = 40
+    Top = 32
   end
   object HTTP: TIdHTTPServer
     Bindings = <>

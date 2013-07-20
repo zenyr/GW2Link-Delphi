@@ -4,31 +4,87 @@
 }
 #map {
 height:100%;
+font-family:menomonia,serif;
 }
 #float {
 	position:absolute;
 	right:0;
 	top:1em;
 	margin:1em;
-	border:1px solid #f00;
 	background:#fff;
-	opacity:.6;
+	opacity:.8;
 }
+
 .label span {
 	font-family:menomonia,serif;
 	position: relative;
 	left: -50%;
-	white-space: nowrap; color:white;line-height:60%;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;display:block;text-align:center;
+	top:-0.55em;
+	white-space: nowrap; color:white;
+	text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;
+	display:inline-block;text-align:center;
+	z-index:2;
+}
+.gm-style div{
+	font-family:menomonia,serif;
+}
+.gm-style .label,.gm-style .label-clickable {
+	font-size:12pt;
+}
+.gm-style .label>img {
+	height:12pt !important;
 }
 .label small{
-	opacity:.7;
+	font-size: .9em;
+	opacity:.8;
+    position: relative;
+	z-index:-1;
+	pointer-event:none;
+	margin-top:0;
+	top:-.5em;
 }
+.label {pointer-events:none}
 .label-hide-small small{
-	display:none;
+	display:none;	
 }
 .label-clickable img, .label-clickable i {
 	cursor:pointer;
+	z-index:300;
+	color:#ffff88;
+	pointer-events:auto;
 }
-.label-clickable img {
-	min-width:40px;
+.label img{
+	height:1em;
+	margin:-.25em 0;
+}
+.marker span{
+	position: relative;
+	display:block;
+	width:93px;
+	height:86px:
+	left: -50%;
+	opacity:.8;
+}
+.marker img {
+	position:absolute;
+	-moz-transition: all .2s ease;
+	-webkit-transition: all .2s ease;
+	-o-transition: all .2s ease;
+	transition: all .2s ease;
+}
+.marker .crot {
+left:-46px;
+top:-43px;
+}
+.marker .prot {
+	left:-14px;
+	top:-10px;
+}
+.event-area {
+	color:cyan;
+	position:absolute;
+	z-index:-1;
+	cursor:pointer;
+	border:3px solid #38b;
+	box-shadow:0 0 10px #000;
 }
